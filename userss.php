@@ -1,8 +1,17 @@
 <?php
 session_start();
-if (!isset($_SESSION['user'])) header("Location: login.php");
-$users = file_exists("users.json") ? json_decode(file_get_contents("users.json"), true) : [];
+require_once 'Database.php';
+
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$db = new Database();
+$db->connect('localhost', 'root', '', 'iti2_db');
+$users = $db->getAllUsers();
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>

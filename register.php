@@ -1,59 +1,53 @@
 <?php
 session_start();
-$users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
+require_once 'Database.php';
 
-function saveUser($user) {
-  global $users;
-  $users[] = $user;
-  file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT));
-}
+$db = new Database();
+$db->connect('localhost', 'root', '', 'iti2_db',3306);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $name = $_POST['name'];
-  $email = $_POST['email'];
-  $password = $_POST['password'];
-  $confirm = $_POST['confirm'];
-  $phone = $_POST['phone'];
-  $gender = $_POST['gender'];
-  $dob = $_POST['dob'];
-  $country = $_POST['country'];
+    $name     = $_POST['name'];
+    $email    = $_POST['email'];
+    $password = $_POST['password'];
+    $confirm  = $_POST['confirm'];
+    $phone    = $_POST['phone'];
+    $gender   = $_POST['gender'];
+    $dob      = $_POST['dob'];
+    $country  = $_POST['country'];
 
-  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $error = "Invalid email format.";
-  } elseif ($password !== $confirm) {
-    $error = "Passwords do not match.";
-  } else {
-    foreach ($users as $u) {
-      if ($u['email'] === $email) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format.";
+    } elseif ($password !== $confirm) {
+        $error = "Passwords do not match.";
+    } elseif ($db->findUserByEmail($email)) {
         $error = "Email already registered.";
-        break;
-      }
     }
-  }
 
-  if (!isset($error)) {
-    $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-    $photo = uniqid() . "." . $ext;
-    move_uploaded_file($_FILES['photo']['tmp_name'], "uploads/$photo");
+    if (!isset($error)) {
+        $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+        $photo = uniqid() . "." . $ext;
+        move_uploaded_file($_FILES['photo']['tmp_name'], "uploads/$photo");
 
-    $newUser = [
-      "name" => $name,
-      "email" => $email,
-      "password" => password_hash($password, PASSWORD_DEFAULT),
-      "phone" => $phone,
-      "gender" => $gender,
-      "dob" => $dob,
-      "country" => $country,
-      "photo" => $photo
-    ];
+        $user = [
+            "name" => $name,
+            "email" => $email,
+            "password" => password_hash($password, PASSWORD_DEFAULT),
+            "phone" => $phone,
+            "gender" => $gender,
+            "dob" => $dob,
+            "country" => $country,
+            "photo" => $photo
+        ];
 
-    saveUser($newUser);
-    $_SESSION['user'] = $newUser;
-    header("Location: dashboard.php");
-    exit;
-  }
+        $db->insert('users', $user);
+        $_SESSION['user'] = $user;
+        header("Location: dashboard.php");
+        exit;
+    }
 }
 ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -160,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <form method="POST" enctype="multipart/form-data">
     <h2>📝 Register</h2>
     <?php if (!empty($error)) echo "<p class='error'>$error</p>"; ?>
-    
+
     <label>Name:</label>
     <input type="text" name="name" placeholder="Full Name" required>
 

@@ -1,9 +1,12 @@
 <?php
 session_start();
-if (!isset($_SESSION['user'])) header("Location: login.php");
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit;
+}
 $user = $_SESSION['user'];
-$users = file_exists("users.json") ? json_decode(file_get_contents("users.json"), true) : [];
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,6 +32,7 @@ $users = file_exists("users.json") ? json_decode(file_get_contents("users.json")
       border-radius: 0.5rem;
       margin-bottom: 2rem;
       text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
     nav a {
       margin: 0 1rem;
@@ -51,38 +55,26 @@ $users = file_exists("users.json") ? json_decode(file_get_contents("users.json")
       height: 120px;
       object-fit: cover;
     }
-    table {
-      width: 100%;
-      margin-top: 2rem;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      padding: 0.7rem;
-      border-bottom: 1px solid #ccc;
-    }
-    th {
-      background: #1e40af;
-      color: white;
-    }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="dashboard.php">Welcome</a>
-    <a href="profile.php">Profile</a>
-    <a href="userss.php">All Users</a>
-    <a href="logout.php">Logout</a>
-  </nav>
 
-  <div class="card">
-    <h2>Welcome, <?= htmlspecialchars($user['name']) ?> 👋</h2>
-    <img src="uploads/<?= $user['photo'] ?>" alt="profile" />
-    <p><strong>Email:</strong> <?= $user['email'] ?></p>
-    <p><strong>Phone:</strong> <?= $user['phone'] ?></p>
-    <p><strong>Gender:</strong> <?= $user['gender'] ?></p>
-    <p><strong>DOB:</strong> <?= $user['dob'] ?></p>
-    <p><strong>Country:</strong> <?= $user['country'] ?></p>
-  </div>
+<nav>
+  <a href="dashboard.php">Dashboard</a> |
+  <a href="profile.php">My Profile</a> |
+  <a href="userss.php">All Users</a> |
+  <a href="logout.php">Logout</a>
+</nav>
+
+<div class="card">
+  <h2>Welcome, <?= htmlspecialchars($user['name']) ?></h2>
+  <p>Email: <?= htmlspecialchars($user['email']) ?></p>
+  <p>Phone: <?= htmlspecialchars($user['phone']) ?></p>
+  <p>Gender: <?= htmlspecialchars($user['gender']) ?></p>
+  <p>Birthdate: <?= htmlspecialchars($user['dob']) ?></p>
+  <p>Country: <?= htmlspecialchars($user['country']) ?></p>
+  <img src="uploads/<?= htmlspecialchars($user['photo']) ?>" alt="Profile Photo">
+</div>
+
 </body>
 </html>

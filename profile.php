@@ -1,8 +1,12 @@
 <?php
 session_start();
-if (!isset($_SESSION['user'])) header("Location: login.php");
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit;
+}
 $user = $_SESSION['user'];
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -24,6 +28,13 @@ $user = $_SESSION['user'];
   </style>
 </head>
 <body>
+  <nav>
+  <a href="dashboard.php">Dashboard</a> |
+  <a href="profile.php">My Profile</a> |
+  <a href="userss.php">All Users</a> |
+  <a href="logout.php">Logout</a>
+</nav>
+
   <div class="card">
     <h2>Your Profile</h2>
     <img src="uploads/<?= $user['photo'] ?>" alt="Profile Picture">

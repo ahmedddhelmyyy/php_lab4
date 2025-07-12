@@ -1,27 +1,32 @@
 <?php
 session_start();
-$users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
+require_once 'Database.php';
+
+$db = new Database();
+$db->connect('localhost', 'root', '', 'iti2_db',3306);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $email = $_POST['email'];
-  $password = $_POST['password'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-  foreach ($users as $u) {
-    if ($u['email'] === $email && password_verify($password, $u['password'])) {
-      $_SESSION['user'] = $u;
-      header("Location: dashboard.php");
-      exit;
+    $user = $db->findUserByEmail($email);
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user'] = $user;
+        header("Location: dashboard.php");
+        exit;
     }
-  }
-  $error = "Invalid email or password.";
+
+    $error = "Invalid email or password.";
 }
 ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
   <title>Login</title>
   <style>
-    /* same style as register */
+
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;

@@ -1,18 +1,16 @@
 <?php
+require_once 'Database.php';
+
 if (!isset($_GET['email'])) die("User not found.");
-$users = file_exists("users.json") ? json_decode(file_get_contents("users.json"), true) : [];
-$email = $_GET['email'];
-$user = null;
 
-foreach ($users as $u) {
-  if ($u['email'] === $email) {
-    $user = $u;
-    break;
-  }
-}
+$db = new Database();
+$db->connect('localhost', 'root', '', 'iti2_db');
 
+$user = $db->findUserByEmail($_GET['email']);
 if (!$user) die("User not found.");
 ?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
